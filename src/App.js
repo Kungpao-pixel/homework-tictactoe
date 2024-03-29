@@ -1,73 +1,87 @@
-
-import * as React from 'react';
+import React, { useState } from 'react';
 
 function Board() {
-  const squares = Array(9).fill(null);
-  function selectSquare(square) {
+  const [squares, setSquares] = useState(Array(9).fill(null));
+  const [nextValue, setNextValue] = useState('X');
+  const [winner, setWinner] = useState(null)
 
+  function selectSquare(square) {
+    if (squares[square] || winner) return; 
+    const squaresCopy = [...squares];
+    squaresCopy[square] = nextValue;
+    setSquares(squaresCopy);
+    const nextWinner = calculateWinner(squaresCopy);
+    if (nextWinner) {
+      setWinner(nextWinner);
+    } else {
+      setNextValue(calculateNextValue(squaresCopy));
+    }
   }
 
   function restart() {
+    setSquares(Array(9).fill(null));
+    setNextValue('X');
+    setWinner(null);
   }
 
   function renderSquare(i) {
     return (
+      <div className='square'>
       <button className="square" onClick={() => selectSquare(i)}>
         {squares[i]}
       </button>
+      </div>
     );
   }
 
   return (
-    <div>
-      <div >STATUS</div>
-      <div >
+    <div className='container'>
+      <h1>Tic Tac Toe in <span>React</span></h1>
+      <div className='status'>{calculateStatus(winner, squares, nextValue)}</div>
+      <div className='board'>
+        <div className='boxes'>
         {renderSquare(0)}
         {renderSquare(1)}
         {renderSquare(2)}
       </div>
-      <div >
+      <div className='boxes'>
         {renderSquare(3)}
         {renderSquare(4)}
         {renderSquare(5)}
       </div>
-      <div >
+      <div className='boxes'>
         {renderSquare(6)}
         {renderSquare(7)}
         {renderSquare(8)}
       </div>
-      <button onClick={restart}>
-        restart
-      </button>
+      </div>
+      <button className='restart' onClick={restart}>Restart</button>
     </div>
   );
 }
 
 function Game() {
   return (
-    <div >
-      <div >
+    <div>
+      <div>
         <Board />
       </div>
     </div>
   );
 }
 
-// eslint-disable-next-line no-unused-vars
 function calculateStatus(winner, squares, nextValue) {
   return winner
     ? `Winner: ${winner}`
     : squares.every(Boolean)
-      ? `Scratch: Cat's game`
-      : `Next player: ${nextValue}`;
+    ? `Draw!!!`
+    : `Next player: ${nextValue}`;
 }
 
-// eslint-disable-next-line no-unused-vars
 function calculateNextValue(squares) {
   return squares.filter(Boolean).length % 2 === 0 ? 'X' : 'O';
 }
 
-// eslint-disable-next-line no-unused-vars
 function calculateWinner(squares) {
   const lines = [
     [0, 1, 2],
